@@ -836,6 +836,15 @@
         setInterval(() => {
             if (tabActual === 'misiones') renderizarMisiones();
         }, 60000);
-    </script>
+    <script>
+// Registrar Service Worker para PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/vida-continua/sw.js')
+      .then(reg => console.log('SW registrado:', reg))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+</script>
 </body>
 </html>
