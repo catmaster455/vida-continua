@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a73e8">
+    <title>🏆 Vida Continua</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #f0f2f5; min-height: 100vh; padding-bottom: 80px; }
+        
+        /* Encabezado */
+        .header { background: linear-gradient(135deg, #1a73e8, #4285f4); color: white; padding: 20px 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 22px; margin-bottom: 5px; }
+        .saldo { font-size: 32px; font-weight: bold; margin-top: 10px; }
+        .saldo-sub { font-size: 13px; opacity: 0.9; }
+        
+        /* Navegación inferior */
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 100; }
+        .nav-btn { flex: 1; padding: 12px 5px; text-align: center; cursor: pointer; border: none; background: none; font-size: 11px; color: #666; transition: all 0.2s; }
+        .nav-btn.active { color: #1a73e8; background: #e8f0fe; }
+        .nav-btn .icono { font-size: 22px; display: block; margin-bottom: 2px; }
+        
+        /* Pestañas */
+        .tab { display: none; padding: 15px; }
+        .tab.active { display: block; }
+        
+        /* Tarjetas */
+        .tarjeta { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .tarjeta h2 { color: #333; margin-bottom: 12px; font-size: 17px; border-bottom: 2px solid #1a73e8; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Items */
+        .item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .item:last-child { border-bottom: none; }
+        .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .item-nombre { font-weight: bold; color: #202124; font-size: 15px; }
+        .item-desc { color: #5f6368; font-size: 13px; margin-bottom: 6px; }
+        .item-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        
+        /* Etiquetas */
+        .etiqueta { font-size: 11px; padding: 3px 8px; border-radius: 12px; color: white; font-weight: 500; }
+        .diaria { background: #4285f4; }
+        .semanal { background: #34a853; }
+        .mensual { background: #fbbc04; color: #333; }
+        .pts { background: #1a73e8; }
+        .costo { background: #ea4335; }
+        
+        /* Botones */
+        .btn { border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primario { background: #1a73e8; color: white; width: 100%; margin-top: 8px; }
+        .btn-primario:hover { background: #1557b0; }
+        .btn-exito { background: #188038; color: white; padding: 6px 12px; font-size: 13px; }
+        .btn-peligro { background: #d93025; color: white; padding: 6px 12px; font-size: 13px; }
+        .btn-acento { background: #fbbc04; color: #333; padding: 6px 12px; font-size: 13px; }
+        
+        /* Formularios */
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 13px; color: #5f6368; margin-bottom: 4px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px;
+            background: #f8f9fa; transition: border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1a73e8; background: white; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        /* Progreso */
+        .progreso-contenedor { background: #e8eaed; border-radius: 10px; height: 24px; overflow: hidden; margin: 8px 0; }
+        .progreso-barra { height: 100%; background: linear-gradient(90deg, #1a73e8, #4285f4); transition: width 0.4s ease; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold; }
+        .progreso-texto { text-align: center; color: #5f6368; font-size: 13px; margin-bottom: 15px; }
+        
+        /* Mensajes */
+        .mensaje { padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 14px; font-weight: 500; animation: slideIn 0.3s ease; }
+        .exito { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+        .error { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+        .advertencia { background: #fef7e0; color: #b06000; border: 1px solid #feefc3; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Estado vacío */
+        .vacio { text-align: center; padding: 30px 15px; color: #80868b; }
+        .vacio .icono { font-size: 48px; margin-bottom: 10px; opacity: 0.5; }
+        
+        /* Botón flotante */
+        .fab { position: fixed; bottom: 75px; right: 15px; width: 56px; height: 56px; border-radius: 50%; background: #1a73e8; color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 4px 12px rgba(26,115,232,0.4); z-index: 99; transition: transform 0.2s; }
+        .fab:active { transform: scale(0.92); }
+        
+        /* Modal */
+        .modal-fondo { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+        .modal-fondo.active { display: flex; }
+        .modal { background: white; border-radius: 16px; padding: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-header h3 { color: #202124; }
+        .btn-cerrar { background: none; border: none; font-size: 24px; cursor: pointer; color: #5f6368; padding: 0 5px; }
+    </style>
+</head>
+<body>
+
+    <!-- Encabezado -->
+    <div class="header">
+        <h1>🏆 Sistema de Vida Continua</h1>
+        <div class="saldo" id="saldo-display">0 pts</div>
+        <div class="saldo-sub" id="saldo-sub">¡Empieza a completar misiones!</div>
+    </div>
+
+    <!-- Mensajes -->
+    <div id="mensajes" style="padding: 0 15px; margin-top: 10px;"></div>
+
+    <!-- Pestaña: Metas -->
+    <div class="tab active" id="tab-metas">
+        <div class="tarjeta">
+            <h2>🎯 Metas Activas</h2>
+            <div id="lista-metas"></div>
+        </div>
+    </div>
+
+    <!-- Pestaña: Misiones -->
+    <div class="tab" id="tab-misiones">
+        <div class="tarjeta">
+            <h2>📝 Misiones</h2>
+            <div id="filtro-metas" style="margin-bottom: 12px;">
+                <select id="filtro-meta-select" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #dadce0;">
+                    <option value="todas">Todas las metas</option>
+                </select>
+            </div>
+            <div id="lista-misiones"></div>
+        </div>
+    </div>
+
+    <!-- Pestaña: Recompensas -->
+    <div class="tab" id="tab-recompensas">
+        <div class="tarjeta">
+            <h2>🎁 Recompensas</h2>
+            <div id="lista-recompensas"></div>
+        </div>
+    </div>
+
+    <!-- Pestaña: Progreso -->
+    <div class="tab" id="tab-progreso">
+        <div class="tarjeta">
+            <h2>📊 Progreso General</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <strong style="color: #333;">🎯 Metas completadas</strong>
+                    <span id="metas-progreso-texto" style="color: #5f6368; font-size: 13px;">0/0</span>
+                </div>
+                <div class="progreso-contenedor">
+                    <div class="progreso-barra" id="barra-metas" style="width: 0%;">0%</div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <strong style="color: #333;">📝 Misiones hoy</strong>
+                    <span id="misiones-progreso-texto" style="color: #5f6368; font-size: 13px;">0/0</span>
+                </div>
+                <div class="progreso-contenedor">
+                    <div class="progreso-barra" id="barra-misiones" style="width: 0%; background: linear-gradient(90deg, #34a853, #4caf50);">0%</div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <strong style="color: #333;">🎁 Recompensas canjeadas</strong>
+                    <span id="recompensas-progreso-texto" style="color: #5f6368; font-size: 13px;">0</span>
+                </div>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-top: 15px;">
+                <h4 style="color: #333; margin-bottom: 8px;">📋 Resumen</h4>
+                <div id="resumen-detalle" style="color: #5f6368; font-size: 13px; line-height: 1.6;"></div>
+            </div>
+            
+            <button class="btn btn-primario" onclick="actualizarTodo()" style="margin-top: 15px;">🔄 Actualizar datos</button>
+            <button class="btn btn-peligro" onclick="confirmarReset()" style="margin-top: 8px; width: 100%;">⚠️ Reiniciar todo el sistema</button>
+        </div>
+    </div>
+
+    <!-- Botón flotante -->
+    <button class="fab" onclick="abrirModalAgregar()" id="fab-btn">+</button>
+
+    <!-- Navegación inferior -->
+    <div class="nav">
+        <button class="nav-btn active" onclick="cambiarTab('metas')">
+            <span class="icono">🎯</span>Metas
+        </button>
+        <button class="nav-btn" onclick="cambiarTab('misiones')">
+            <span class="icono">📝</span>Misiones
+        </button>
+        <button class="nav-btn" onclick="cambiarTab('recompensas')">
+            <span class="icono">🎁</span>Premios
+        </button>
+        <button class="nav-btn" onclick="cambiarTab('progreso')">
+            <span class="icono">📊</span>Progreso
+        </button>
+    </div>
+
+    <!-- Modal: Agregar -->
+    <div class="modal-fondo" id="modal-agregar">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-titulo">Agregar</h3>
+                <button class="btn-cerrar" onclick="cerrarModal()">×</button>
+            </div>
+            
+            <!-- Formulario Meta -->
+            <div id="form-meta">
+                <div class="form-group">
+                    <label>Nombre de la meta *</label>
+                    <input type="text" id="meta-nombre" placeholder="Ej: Mejorar mi salud">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="meta-desc" rows="2" placeholder="En qué consiste esta meta..."></textarea>
+                </div>
+                <label style="font-size: 13px; color: #5f6368; font-weight: 500;">Misiones requeridas para completarla:</label>
+                <div class="form-grid" style="margin-top: 8px;">
+                    <div class="form-group">
+                        <label>Diarias</label>
+                        <input type="number" id="meta-req-d" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Semanales</label>
+                        <input type="number" id="meta-req-s" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Mensuales</label>
+                        <input type="number" id="meta-req-m" value="0" min="0">
+                    </div>
+                </div>
+                <button class="btn btn-primario" onclick="agregarMeta()">➕ Crear Meta</button>
+            </div>
+            
+            <!-- Formulario Misión -->
+            <div id="form-mision" style="display: none;">
+                <div class="form-group">
+                    <label>Asignar a meta *</label>
+                    <select id="mision-meta"></select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre de la misión *</label>
+                    <input type="text" id="mision-nombre" placeholder="Ej: Hacer ejercicio">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="mision-desc" rows="2" placeholder="Detalles de la misión..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Tipo *</label>
+                    <select id="mision-tipo">
+                        <option value="diaria">🔵 Diaria (+1 punto)</option>
+                        <option value="semanal">🟢 Semanal (+10 puntos)</option>
+                        <option value="mensual">🟡 Mensual (+20 puntos)</option>
+                    </select>
+                </div>
+                <button class="btn btn-primario" onclick="agregarMision()">➕ Agregar Misión</button>
+            </div>
+            
+            <!-- Formulario Recompensa -->
+            <div id="form-recompensa" style="display: none;">
+                <div class="form-group">
+                    <label>Nombre de la recompensa *</label>
+                    <input type="text" id="rec-nombre" placeholder="Ej: Ver una película">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="rec-desc" rows="2" placeholder="En qué consiste..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Costo en puntos *</label>
+                    <input type="number" id="rec-costo" min="1" value="10" placeholder="Ej: 50">
+                </div>
+                <button class="btn btn-primario" onclick="agregarRecompensa()">➕ Agregar Recompensa</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURACIÓN ====================
+        const CONFIG = {
+            PTS_DIARIO: 1,
+            PTS_SEMANAL: 10,
+            PTS_MENSUAL: 20,
+            DEUDA_MAX: -50,
+            ENFRIAMIENTO_HORAS: { diaria: 24, semanal: 168, mensual: 720 }
+        };
+
+        let tabActual = 'metas';
+        let datos = {
+            saldo: 0,
+            metas: [],
+            misiones: [],
+            recompensas: [],
+            registros: [],
+            metaContador: 1,
+            misionContador: 1,
+            recompensaContador: 1,
+            registroContador: 1
+        };
+
+        // ==================== ALMACENAMIENTO ====================
+        function guardarDatos() {
+            localStorage.setItem('vidaContinuaDatos', JSON.stringify(datos));
+        }
+
+        function cargarDatos() {
+            const guardado = localStorage.getItem('vidaContinuaDatos');
+            if (guardado) {
+                datos = JSON.parse(guardado);
+            }
+        }
+
+        // ==================== UTILIDADES ====================
+        function mostrarMensaje(texto, tipo = 'exito') {
+            const contenedor = document.getElementById('mensajes');
+            const msg = document.createElement('div');
+            msg.className = `mensaje ${tipo}`;
+            msg.textContent = texto;
+            contenedor.appendChild(msg);
+            setTimeout(() => msg.remove(), 3500);
+        }
+
+        function obtenerFechaHoy() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function tiempoRestante(ultimaCompletado, tipo) {
+            if (!ultimaCompletado) return { disponible: true, horas: 0, minutos: 0 };
+            const esperaMs = CONFIG.ENFRIAMIENTO_HORAS[tipo] * 3600 * 1000;
+            const transcurrido = Date.now() - ultimaCompletado;
+            if (transcurrido >= esperaMs) return { disponible: true, horas: 0, minutos: 0 };
+            const restante = esperaMs - transcurrido;
+            return {
+                disponible: false,
+                horas: Math.floor(restante / (3600 * 1000)),
+                minutos: Math.floor((restante % (3600 * 1000)) / (60 * 1000))
+            };
+        }
+
+        function actualizarSaldoDisplay() {
+            const saldoEl = document.getElementById('saldo-display');
+            const subEl = document.getElementById('saldo-sub');
+            saldoEl.textContent = `${datos.saldo} pts`;
+            
+            if (datos.saldo < 0) {
+                saldoEl.style.color = '#ffcccc';
+                subEl.textContent = `⚠️ Deuda: ${datos.saldo} pts (máximo ${CONFIG.DEUDA_MAX})`;
+            } else if (datos.saldo < 50) {
+                saldoEl.style.color = '#fff3cd';
+                subEl.textContent = '💪 ¡Sigue acumulando puntos!';
+            } else {
+                saldoEl.style.color = 'white';
+                subEl.textContent = '🎉 ¡Excelente progreso!';
+            }
+        }
+
+        // ==================== NAVEGACIÓN ====================
+        function cambiarTab(tab) {
+            tabActual = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            const fab = document.getElementById('fab-btn');
+            fab.style.display = tab === 'progreso' ? 'none' : 'block';
+            
+            if (tab === 'misiones') actualizarFiltroMetas();
+            if (tab === 'progreso') actualizarProgreso();
+            renderizarTodo();
+        }
+
+        // ==================== MODAL ====================
+        function abrirModalAgregar() {
+            const modal = document.getElementById('modal-agregar');
+            const titulo = document.getElementById('modal-titulo');
+            
+            document.getElementById('form-meta').style.display = 'none';
+            document.getElementById('form-mision').style.display = 'none';
+            document.getElementById('form-recompensa').style.display = 'none';
+            
+            if (tabActual === 'metas') {
+                titulo.textContent = '🎯 Nueva Meta';
+                document.getElementById('form-meta').style.display = 'block';
+            } else if (tabActual === 'misiones') {
+                titulo.textContent = '📝 Nueva Misión';
+                document.getElementById('form-mision').style.display = 'block';
+                actualizarSelectMetas();
+            } else if (tabActual === 'recompensas') {
+                titulo.textContent = '🎁 Nueva Recompensa';
+                document.getElementById('form-recompensa').style.display = 'block';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-agregar').classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modal-agregar').addEventListener('click', (e) => {
+            if (e.target.id === 'modal-agregar') cerrarModal();
+        });
+
+        // ==================== METAS ====================
+        function agregarMeta() {
+            const nombre = document.getElementById('meta-nombre').value.trim();
+            if (!nombre) { mostrarMensaje('❌ Escribe un nombre para la meta', 'error'); return; }
+            
+            const meta = {
+                id: datos.metaContador++,
+                nombre,
+                descripcion: document.getElementById('meta-desc').value.trim(),
+                req_diarias: parseInt(document.getElementById('meta-req-d').value) || 0,
+                req_semanales: parseInt(document.getElementById('meta-req-s').value) || 0,
+                req_mensuales: parseInt(document.getElementById('meta-req-m').value) || 0,
+                activa: true,
+                fechaCreacion: Date.now()
+            };
+            
+            datos.metas.push(meta);
+            guardarDatos();
+            
+            document.getElementById('meta-nombre').value = '';
+            document.getElementById('meta-desc').value = '';
+            document.getElementById('meta-req-d').value = '0';
+            document.getElementById('meta-req-s').value = '0';
+            document.getElementById('meta-req-m').value = '0';
+            
+            cerrarModal();
+            mostrarMensaje('✅ Meta creada exitosamente');
+            renderizarTodo();
+        }
+
+        function verificarMetaCompletada(metaId) {
+            const meta = datos.metas.find(m => m.id === metaId);
+            if (!meta || !meta.activa) return false;
+            
+            const registrosMeta = datos.registros.filter(r => {
+                const mision = datos.misiones.find(m => m.id === r.misionId);
+                return mision && mision.metaId === metaId && r.estado === 'completada';
+            });
+            
+            const diarias = registrosMeta.filter(r => {
+                const m = datos.misiones.find(ms => ms.id === r.misionId);
+                return m && m.tipo === 'diaria';
+            }).length;
+            
+            const semanales = registrosMeta.filter(r => {
+                const m = datos.misiones.find(ms => ms.id === r.misionId);
+                return m && m.tipo === 'semanal';
+            }).length;
+            
+            const mensuales = registrosMeta.filter(r => {
+                const m = datos.misiones.find(ms => ms.id === r.misionId);
+                return m && m.tipo === 'mensual';
+            }).length;
+            
+            if (diarias >= meta.req_diarias && semanales >= meta.req_semanales && mensuales >= meta.req_mensuales) {
+                meta.activa = false;
+                meta.fechaCompletado = Date.now();
+                guardarDatos();
+                mostrarMensaje(`🎉 ¡Meta completada: "${meta.nombre}"!`, 'exito');
+                return true;
+            }
+            return false;
+        }
+
+        function obtenerProgresoMeta(meta) {
+            const registrosMeta = datos.registros.filter(r => {
+                const mision = datos.misiones.find(m => m.id === r.misionId);
+                return mision && mision.metaId === meta.id && r.estado === 'completada';
+            });
+            
+            const diarias = registrosMeta.filter(r => {
+                const m = datos.misiones.find(ms => ms.id === r.misionId);
+                return m && m.tipo === 'diaria';
+            }).length;
+            
+            const semanales = registrosMeta.filter(r => {
+                const m = datos.misiones.find(ms => ms.id === r.misionId);
+                return m && m.tipo === 'semanal';
+            }).length;
+            
+            const mensuales = registrosMeta.filter(r => {
+                const m = datos.misiones.find(ms => ms.id === r.misionId);
+                return m && m.tipo === 'mensual';
+            }).length;
+            
+            return { diarias, semanales, mensuales };
+        }
+
+        function renderizarMetas() {
+            const contenedor = document.getElementById('lista-metas');
+            const metasActivas = datos.metas.filter(m => m.activa);
+            
+            if (metasActivas.length === 0) {
+                contenedor.innerHTML = `
+                    <div class="vacio">
+                        <div class="icono">🎯</div>
+                        <p>No hay metas activas</p>
+                        <p style="font-size: 12px; margin-top: 5px;">Toca el botón + para crear una</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            contenedor.innerHTML = metasActivas.map(meta => {
+                const progreso = obtenerProgresoMeta(meta);
+                const misionesMeta = datos.misiones.filter(m => m.metaId === meta.id);
+                
+                return `
+                    <div class="item">
+                        <div class="item-header">
+                            <span class="item-nombre">${meta.nombre}</span>
+                        </div>
+                        ${meta.descripcion ? `<div class="item-desc">${meta.descripcion}</div>` : ''}
+                        <div class="item-meta">
+                            <span class="etiqueta diaria">D ${progreso.diarias}/${meta.req_diarias}</span>
+                            <span class="etiqueta semanal">S ${progreso.semanales}/${meta.req_semanales}</span>
+                            <span class="etiqueta mensual">M ${progreso.mensuales}/${meta.req_mensuales}</span>
+                            <span style="color: #5f6368; font-size: 12px;">${misionesMeta.length} misiones</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== MISIONES ====================
+        function actualizarSelectMetas() {
+            const select = document.getElementById('mision-meta');
+            const metasActivas = datos.metas.filter(m => m.activa);
+            
+            if (metasActivas.length === 0) {
+                select.innerHTML = '<option value="">⚠️ Crea primero una meta</option>';
+                return;
+            }
+            
+            select.innerHTML = metasActivas.map(m => 
+                `<option value="${m.id}">${m.nombre}</option>`
+            ).join('');
+        }
+
+        function actualizarFiltroMetas() {
+            const select = document.getElementById('filtro-meta-select');
+            const metasActivas = datos.metas.filter(m => m.activa);
+            
+            select.innerHTML = '<option value="todas">Todas las metas</option>' + 
+                metasActivas.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('');
+        }
+
+        function agregarMision() {
+            const metaId = parseInt(document.getElementById('mision-meta').value);
+            if (!metaId) { mostrarMensaje('❌ Crea primero una meta', 'error'); return; }
+            
+            const nombre = document.getElementById('mision-nombre').value.trim();
+            if (!nombre) { mostrarMensaje('❌ Escribe un nombre para la misión', 'error'); return; }
+            
+            const tipo = document.getElementById('mision-tipo').value;
+            const pts = CONFIG[`PTS_${tipo.toUpperCase()}`];
+            
+            const mision = {
+                id: datos.misionContador++,
+                metaId,
+                nombre,
+                descripcion: document.getElementById('mision-desc').value.trim(),
+                tipo,
+                puntos: pts,
+                ultimaCompletado: null
+            };
+            
+            datos.misiones.push(mision);
+            guardarDatos();
+            
+            document.getElementById('mision-nombre').value = '';
+            document.getElementById('mision-desc').value = '';
+            
+            cerrarModal();
+            mostrarMensaje(`✅ Misión creada (+${pts} pts por completar)`);
+            renderizarTodo();
+        }
+
+        function completarMision(misionId) {
+            const mision = datos.misiones.find(m => m.id === misionId);
+            if (!mision) return;
+            
+            const tiempo = tiempoRestante(mision.ultimaCompletado, mision.tipo);
+            if (!tiempo.disponible) {
+                mostrarMensaje(`⏳ Espera ${tiempo.horas}h ${tiempo.minutos}m para volver a completarla`, 'advertencia');
+                return;
+            }
+            
+            // Registrar
+            const registro = {
+                id: datos.registroContador++,
+                misionId,
+                fecha: obtenerFechaHoy(),
+                timestamp: Date.now(),
+                estado: 'completada',
+                puntos: mision.puntos
+            };
+            datos.registros.push(registro);
+            
+            // Actualizar saldo
+            const nuevoSaldo = datos.saldo + mision.puntos;
+            datos.saldo = Math.max(CONFIG.DEUDA_MAX, nuevoSaldo);
+            
+            // Actualizar última vez completado
+            mision.ultimaCompletado = Date.now();
+            
+            guardarDatos();
+            
+            // Verificar si se completó la meta
+            verificarMetaCompletada(mision.metaId);
+            
+            mostrarMensaje(`✅ ¡Completada! +${mision.puntos} puntos`);
+            actualizarSaldoDisplay();
+            renderizarTodo();
+        }
+
+        function renderizarMisiones() {
+            const contenedor = document.getElementById('lista-misiones');
+            const filtro = document.getElementById('filtro-meta-select').value;
+            
+            let misiones = datos.misiones.filter(m => {
+                const meta = datos.metas.find(me => me.id === m.metaId);
+                return meta && meta.activa;
+            });
+            
+            if (filtro !== 'todas') {
+                misiones = misiones.filter(m => m.metaId === parseInt(filtro));
+            }
+            
+            if (misiones.length === 0) {
+                contenedor.innerHTML = `
+                    <div class="vacio">
+                        <div class="icono">📝</div>
+                        <p>No hay misiones</p>
+                        <p style="font-size: 12px; margin-top: 5px;">Toca el botón + para agregar una</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            contenedor.innerHTML = misiones.map(mision => {
+                const meta = datos.metas.find(m => m.id === mision.metaId);
+                const tiempo = tiempoRestante(mision.ultimaCompletado, mision.tipo);
+                const btnEstado = tiempo.disponible 
+                    ? `<button class="btn btn-exito" onclick="completarMision(${mision.id})">✅ Completar</button>`
+                    : `<button class="btn" disabled style="background: #ccc; cursor: not-allowed;">⏳ ${tiempo.horas}h ${tiempo.minutos}m</button>`;
+                
+                return `
+                    <div class="item">
+                        <div style="flex: 1;">
+                            <div class="item-header">
+                                <span class="item-nombre">${mision.nombre}</span>
+                            </div>
+                            ${mision.descripcion ? `<div class="item-desc">${mision.descripcion}</div>` : ''}
+                            <div class="item-meta">
+                                <span class="etiqueta ${mision.tipo}">${mision.tipo}</span>
+                                <span class="etiqueta pts">+${mision.puntos} pts</span>
+                                ${meta ? `<span style="color: #5f6368; font-size: 12px;">🎯 ${meta.nombre}</span>` : ''}
+                            </div>
+                        </div>
+                        <div style="margin-left: 10px;">
+                            ${btnEstado}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== RECOMPENSAS ====================
+        function agregarRecompensa() {
+            const nombre = document.getElementById('rec-nombre').value.trim();
+            if (!nombre) { mostrarMensaje('❌ Escribe un nombre para la recompensa', 'error'); return; }
+            
+            const costo = parseInt(document.getElementById('rec-costo').value);
+            if (!costo || costo < 1) { mostrarMensaje('❌ El costo debe ser mayor a 0', 'error'); return; }
+            
+            const recompensa = {
+                id: datos.recompensaContador++,
+                nombre,
+                descripcion: document.getElementById('rec-desc').value.trim(),
+                costo,
+                canjeada: false
+            };
+            
+            datos.recompensas.push(recompensa);
+            guardarDatos();
+            
+            document.getElementById('rec-nombre').value = '';
+            document.getElementById('rec-desc').value = '';
+            document.getElementById('rec-costo').value = '10';
+            
+            cerrarModal();
+            mostrarMensaje('🎁 Recompensa agregada');
+            renderizarTodo();
+        }
+
+        function canjearRecompensa(recId) {
+            const rec = datos.recompensas.find(r => r.id === recId);
+            if (!rec || rec.canjeada) return;
+            
+            if (datos.saldo < rec.costo) {
+                mostrarMensaje(`❌ Puntos insuficientes. Te faltan ${rec.costo - datos.saldo} pts`, 'error');
+                return;
+            }
+            
+            datos.saldo -= rec.costo;
+            rec.canjeada = true;
+            rec.fechaCanje = Date.now();
+            guardarDatos();
+            
+            mostrarMensaje(`🎉 ¡Canjeaste "${rec.nombre}"!`, 'exito');
+            actualizarSaldoDisplay();
+            renderizarTodo();
+        }
+
+        function renderizarRecompensas() {
+            const contenedor = document.getElementById('lista-recompensas');
+            const disponibles = datos.recompensas.filter(r => !r.canjeada);
+            
+            if (disponibles.length === 0) {
+                contenedor.innerHTML = `
+                    <div class="vacio">
+                        <div class="icono">🎁</div>
+                        <p>No hay recompensas disponibles</p>
+                        <p style="font-size: 12px; margin-top: 5px;">¡Crea premios para motivarte!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            contenedor.innerHTML = disponibles.map(rec => {
+                const puedeCanjear = datos.saldo >= rec.costo;
+                const btn = puedeCanjear
+                    ? `<button class="btn btn-acento" onclick="canjearRecompensa(${rec.id})">🎉 Canjear</button>`
+                    : `<button class="btn" disabled style="background: #eee; color: #999; cursor: not-allowed;">🔒 Faltan ${rec.costo - datos.saldo}</button>`;
+                
+                return `
+                    <div class="item">
+                        <div style="flex: 1;">
+                            <div class="item-header">
+                                <span class="item-nombre">${rec.nombre}</span>
+                            </div>
+                            ${rec.descripcion ? `<div class="item-desc">${rec.descripcion}</div>` : ''}
+                            <div class="item-meta">
+                                <span class="etiqueta costo">${rec.costo} pts</span>
+                            </div>
+                        </div>
+                        <div style="margin-left: 10px;">
+                            ${btn}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== PROGRESO ====================
+        function actualizarProgreso() {
+            const hoy = obtenerFechaHoy();
+            
+            // Metas
+            const totalMetas = datos.metas.length;
+            const metasCompletadas = datos.metas.filter(m => !m.activa).length;
+            const pctMetas = totalMetas > 0 ? Math.round((metasCompletadas / totalMetas) * 100) : 0;
+            
+            document.getElementById('metas-progreso-texto').textContent = `${metasCompletadas}/${totalMetas}`;
+            const barraMetas = document.getElementById('barra-metas');
+            barraMetas.style.width = `${pctMetas}%`;
+            barraMetas.textContent = `${pctMetas}%`;
+            
+            // Misiones hoy
+            const misionesActivas = datos.misiones.filter(m => {
+                const meta = datos.metas.find(me => me.id === m.metaId);
+                return meta && meta.activa;
+            });
+            const misionesHoy = datos.registros.filter(r => r.fecha === hoy && r.estado === 'completada').length;
+            const pctMisiones = misionesActivas.length > 0 ? Math.round((misionesHoy / misionesActivas.length) * 100) : 0;
+            
+            document.getElementById('misiones-progreso-texto').textContent = `${misionesHoy}/${misionesActivas.length}`;
+            const barraMisiones = document.getElementById('barra-misiones');
+            barraMisiones.style.width = `${Math.min(pctMisiones, 100)}%`;
+            barraMisiones.textContent = `${Math.min(pctMisiones, 100)}%`;
+            
+            // Recompensas
+            const canjeadas = datos.recompensas.filter(r => r.canjeada).length;
+            document.getElementById('recompensas-progreso-texto').textContent = `${canjeadas} de ${datos.recompensas.length}`;
+            
+            // Resumen
+            const ptsTotales = datos.registros.reduce((sum, r) => sum + r.puntos, 0);
+            document.getElementById('resumen-detalle').innerHTML = `
+                💰 <strong>Puntos ganados en total:</strong> ${ptsTotales}<br>
+                📊 <strong>Saldo actual:</strong> ${datos.saldo} pts<br>
+                🎯 <strong>Metas activas:</strong> ${datos.metas.filter(m => m.activa).length}<br>
+                📝 <strong>Misiones totales:</strong> ${datos.misiones.length}<br>
+                🎁 <strong>Recompensas canjeadas:</strong> ${canjeadas}
+            `;
+        }
+
+        // ==================== FUNCIONES GENERALES ====================
+        function renderizarTodo() {
+            actualizarSaldoDisplay();
+            renderizarMetas();
+            renderizarMisiones();
+            renderizarRecompensas();
+        }
+
+        function actualizarTodo() {
+            renderizarTodo();
+            if (tabActual === 'progreso') actualizarProgreso();
+            mostrarMensaje('🔄 Datos actualizados');
+        }
+
+        function confirmarReset() {
+            if (confirm('⚠️ ¿Estás SEGURO de que quieres BORRAR TODOS los datos?\n\nEsta acción no se puede deshacer.')) {
+                if (confirm('⚠️ ÚLTIMA ADVERTENCIA: Se eliminarán metas, misiones, recompensas, puntos y registros.')) {
+                    localStorage.removeItem('vidaContinuaDatos');
+                    location.reload();
+                }
+            }
+        }
+
+        // Evento para el filtro de misiones
+        document.getElementById('filtro-meta-select').addEventListener('change', renderizarMisiones);
+
+        // ==================== INICIO ====================
+        cargarDatos();
+        renderizarTodo();
+        
+        // Actualizar cada minuto para refrescar los tiempos de enfriamiento
+        setInterval(() => {
+            if (tabActual === 'misiones') renderizarMisiones();
+        }, 60000);
+    </script>
+</body>
+</html>
