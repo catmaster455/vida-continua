@@ -1,0 +1,18 @@
+{
+  "name": "Sistema Vida Continua",
+  "short_name": "Vida Continua",
+  "description": "App de metas, misiones y recompensas",
+  "start_url": "/vida-continua/",
+  "display": "standalone",
+  "background_color": "#1a73e8",
+  "theme_color": "#1a73e8",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1005/1005141.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
